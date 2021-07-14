@@ -9,6 +9,8 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import mixins
 from rest_framework import generics
+from rest_framework import permissions
+import djoser.views
 
 from .models import CustomUser
 from .serializers import ProfileSerializer
@@ -22,6 +24,7 @@ class ProfileListView(generics.ListCreateAPIView):
 class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = ProfileSerializer
+
 
 
 

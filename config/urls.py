@@ -24,6 +24,7 @@ urlpatterns = [
     path('auth/', include('djoser.urls.jwt')),
 
     path('api/profiles/', include('src.profiles.urls')),
+    path('api/heartbeat/', include('src.heartbeat.urls')),
 ]
 
 

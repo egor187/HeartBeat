@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -37,9 +37,22 @@ class TeamCreateAPIView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         """
-        save instance with 'request.user' on 'team_lead' field
+        Override parent method to perform create team instance with predefined 'team_lead' field with self.request
         """
         serializer.save(team_lead=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        """
+        Override parent method to allow only to 'is_team_lead' users to create team
+        """
+        if self.request.user.is_team_lead:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
 
 class TeamDeleteAPIView(generics.DestroyAPIView):

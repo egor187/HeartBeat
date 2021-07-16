@@ -7,5 +7,6 @@ app_name = "heartbeat"
 urlpatterns = [
     path("", views.RootAPIView.as_view(), name="root"),
     path("teams/", views.TeamListAPIView.as_view(), name="teams"),
-    path("teams/create/", views.TeamCreateAPIView.as_view(), name="create_team"),
+    path("team/create/", views.TeamCreateAPIView.as_view(), name="create_team"),
+    path("team/delete/<int:pk>/", views.TeamDeleteAPIView.as_view(), name="delete_team"),
 ]

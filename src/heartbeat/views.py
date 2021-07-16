@@ -40,3 +40,18 @@ class TeamCreateAPIView(generics.CreateAPIView):
         save instance with 'request.user' on 'team_lead' field
         """
         serializer.save(team_lead=self.request.user)
+
+
+class TeamDeleteAPIView(generics.DestroyAPIView):
+    queryset = Team.objects.all()
+    serializer_class = TeamSerializer
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Override for restrict access to delete teams only by team_lead who created that team
+        """
+        instance = self.get_object()
+        if instance.team_lead == self.request.user:
+            return super().destroy(request, args, kwargs)
+        else:
+            return Response(status=404)

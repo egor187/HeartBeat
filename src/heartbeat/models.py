@@ -29,7 +29,7 @@ class Membership(models.Model):
     """
     Class for extra data of membership to associate it with the relationship between two models
     """
-    member = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="memberships")
+    member = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="memberships", unique=True)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="membership")
     date_joined = models.DateField(verbose_name="date of joining")
 

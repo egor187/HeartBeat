@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from .models import Team
-from .serializers import TeamSerializer
+from .models import Team, Membership
+from .serializers import TeamSerializer, MembershipSerializer
 
 
 class RootAPIView(APIView):
@@ -61,10 +61,31 @@ class TeamDeleteAPIView(generics.DestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         """
-        Override for restrict access to delete teams only by team_lead who created that team
+        Override for restrict access to delete teams only by team_lead who created that team and
+        additional check for self.request.user is team_lead
         """
         instance = self.get_object()
-        if instance.team_lead == self.request.user:
+        if instance.team_lead == self.request.user and self.request.user.is_team_lead:
             return super().destroy(request, args, kwargs)
         else:
             return Response(status=404)
+
+
+class TeamUpdateAPIView(generics.UpdateAPIView):
+    queryset = Team.objects.all()
+    serializer_class = TeamSerializer
+
+
+class MembershipListAPIView(generics.ListAPIView):
+    queryset = Membership.objects.all()
+    serializer_class = MembershipSerializer
+
+
+class MembershipCreateAPIView(generics.CreateAPIView):
+    queryset = Membership.objects.all()
+    serializer_class = MembershipSerializer
+
+
+class MembershipDeleteAPIView(generics.DestroyAPIView):
+    queryset = Membership.objects.all()
+    serializer_class = MembershipSerializer

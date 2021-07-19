@@ -40,15 +40,18 @@ class Membership(models.Model):
         return f"{self.member} joined team {self.team} at {self.date_joined}"
 
 
-# class Question(models.Model):
-#     text = models.TextField(verbose_name="text of the question")
-#     team_lead = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="questions")
-#
-#
-# class HeartBeat(models.Model):
-#     question = models.ForeignKey(Question, on_delete=models.PROTECT, related_name="heartbeats")
-#     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="heartbeats")
-#     member = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="heartbeats")
-#     date_created = models.DateField()
-#     yesterday_plan = models.TextField()
-#     today_plan = models.TextField()
+class Question(models.Model):
+    text = models.TextField(verbose_name="text of the question")
+    team_lead = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="questions")
+
+    class Meta:
+        unique_together = ["text", "team_lead"]
+
+
+class HeartBeat(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.PROTECT, related_name="heartbeats")
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="heartbeats")
+    member = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="heartbeats")
+    date_created = models.DateField(auto_now_add=True)
+    yesterday_plan = models.TextField()
+    today_plan = models.TextField()

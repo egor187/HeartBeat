@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from .models import Team, Membership
-from .serializers import TeamSerializer, MembershipSerializer
+from .serializers import TeamSerializer, MembershipReadSerializer, MembershipWriteSerializer
 
 
 class RootAPIView(APIView):
@@ -23,12 +23,12 @@ class TeamListAPIView(generics.ListAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
 
-    def get_queryset(self):
-        """
-        Return only those teams in which 'request.user' is team_lead
-        """
-        queryset = Team.objects.filter(team_lead=self.request.user)
-        return queryset
+    # def get_queryset(self):
+    #     """
+    #     Return only those teams in which 'request.user' is team_lead
+    #     """
+    #     queryset = Team.objects.filter(team_lead=self.request.user)
+    #     return queryset
 
 
 class TeamCreateAPIView(generics.CreateAPIView):
@@ -78,14 +78,14 @@ class TeamUpdateAPIView(generics.UpdateAPIView):
 
 class MembershipListAPIView(generics.ListAPIView):
     queryset = Membership.objects.all()
-    serializer_class = MembershipSerializer
+    serializer_class = MembershipReadSerializer
 
 
 class MembershipCreateAPIView(generics.CreateAPIView):
     queryset = Membership.objects.all()
-    serializer_class = MembershipSerializer
+    serializer_class = MembershipWriteSerializer
 
 
 class MembershipDeleteAPIView(generics.DestroyAPIView):
     queryset = Membership.objects.all()
-    serializer_class = MembershipSerializer
+    serializer_class = MembershipReadSerializer

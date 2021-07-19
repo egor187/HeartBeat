@@ -4,20 +4,24 @@ from .models import Team, Membership
 from ..profiles.models import CustomUser
 
 
-class MembershipSerializer(serializers.ModelSerializer):
-    date_joined = serializers.DateTimeField(read_only=True)
-    username = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
-    email = serializers.SlugField()
-
-    class Meta:
-        model = Membership
-        fields = ["id", "date_joined", "username", "email"]
-
-
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ["id", "username", "email"]
+
+
+class MembershipReadSerializer(serializers.ModelSerializer):
+    member = CustomUserSerializer()
+
+    class Meta:
+        model = Membership
+        fields = ["team", "date_joined", "member"]
+
+
+class MembershipWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Membership
+        fields = ["member", "date_joined", "team"]
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -29,7 +33,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
     #  Nested serializer realization
     team_lead = CustomUserSerializer(read_only=True)
-    members = MembershipSerializer(many=True, read_only=True)
+    members = CustomUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = Team

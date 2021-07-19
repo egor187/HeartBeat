@@ -29,9 +29,26 @@ class Membership(models.Model):
     """
     Class for extra data of membership to associate it with the relationship between two models
     """
-    member = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="memberships", unique=True)
+    member = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="memberships")
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="membership")
     date_joined = models.DateField(verbose_name="date of joining")
 
+    class Meta:
+        unique_together = ["member", "team"]
+
     def __str__(self):
         return f"{self.member} joined team {self.team} at {self.date_joined}"
+
+
+# class Question(models.Model):
+#     text = models.TextField(verbose_name="text of the question")
+#     team_lead = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="questions")
+#
+#
+# class HeartBeat(models.Model):
+#     question = models.ForeignKey(Question, on_delete=models.PROTECT, related_name="heartbeats")
+#     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="heartbeats")
+#     member = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="heartbeats")
+#     date_created = models.DateField()
+#     yesterday_plan = models.TextField()
+#     today_plan = models.TextField()

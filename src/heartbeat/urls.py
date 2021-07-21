@@ -6,6 +6,7 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register("question", views.QuestionViewSet, basename="questions")
+router.register("heartbeat", views.HeartBeatViewSet, basename="heartbeats")
 
 app_name = "heartbeat"
 

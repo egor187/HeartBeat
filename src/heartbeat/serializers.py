@@ -1,6 +1,7 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
-from .models import Team, Membership
+from .models import Team, Membership, Question, HeartBeat
 from ..profiles.models import CustomUser
 
 
@@ -38,3 +39,17 @@ class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = ["id", "name", "team_lead", "members"]
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ["id", "text", "team_lead"]
+        read_only_fields = ["id", "team_lead"]
+        # validators = [
+        #     UniqueTogetherValidator(
+        #         queryset=Question.objects.all(),
+        #         fields=("text", "team_lead"),
+        #         message="Such question already created by current user"
+        #     )
+        # ]

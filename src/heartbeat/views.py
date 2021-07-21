@@ -6,9 +6,9 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from .models import Team, Membership, Question
+from .models import Team, Membership, Question, HeartBeat
 from .serializers import TeamSerializer, MembershipReadSerializer, MembershipWriteSerializer, QuestionWriteSerializer, \
-    QuestionReadSerializer
+    QuestionReadSerializer, HeartBeatReadSerializer, HeartBeatWriteSerializer
 from .custom_permissions import IsQuestionOwner, IsTeamLead
 
 
@@ -28,12 +28,12 @@ class TeamListAPIView(generics.ListAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
 
-    # def get_queryset(self):
-    #     """
-    #     Return only those teams in which 'request.user' is team_lead
-    #     """
-    #     queryset = Team.objects.filter(team_lead=self.request.user)
-    #     return queryset
+    def get_queryset(self):
+        """
+        Return only those teams in which 'request.user' is team_lead
+        """
+        queryset = Team.objects.filter(team_lead=self.request.user)
+        return queryset
 
 
 class TeamCreateAPIView(generics.CreateAPIView):
@@ -46,18 +46,22 @@ class TeamCreateAPIView(generics.CreateAPIView):
         """
         serializer.save(team_lead=self.request.user)
 
-    def create(self, request, *args, **kwargs):
-        """
-        Override parent method to allow only to 'is_team_lead' users to create team
-        """
-        if self.request.user.is_team_lead:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        else:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+    # Realization below (without using validation on 'serializer' level) with hardcoded returning Response
+    # with 403-status and row error message. More convenient realization is to set field validation on serializater
+    # level with raising serializers.ValidationError
+
+    # def create(self, request, *args, **kwargs):
+    #     """
+    #     Override parent method to allow only to 'is_team_lead' users to create team
+    #     """
+    #     if self.request.user.is_team_lead:
+    #         serializer = self.get_serializer(data=request.data)
+    #         serializer.is_valid(raise_exception=True)
+    #         self.perform_create(serializer)
+    #         headers = self.get_success_headers(serializer.data)
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    #     else:
+    #         return Response(data={"msg": "current user isn't teamlead"}, status=status.HTTP_403_FORBIDDEN)
 
 
 class TeamDeleteAPIView(generics.DestroyAPIView):
@@ -147,3 +151,21 @@ class QuestionViewSet(viewsets.ModelViewSet):
     #         return Response(data={"message": "unique constraint violation"}, status=status.HTTP_409_CONFLICT)
     #     else:
     #         return Response(serializer.data)
+
+
+class HeartBeatViewSet(viewsets.ModelViewSet):
+
+    def get_queryset(self):
+        """
+        return queryset only for related teams in which current user is team_lead
+        """
+        if self.request.user.is_team_lead:
+            return HeartBeat.objects.filter(team__team_lead=self.request.user)
+        else:
+            return HeartBeat.objects.filter(creator=self.request.user)
+
+    def get_serializer_class(self):
+        if self.action in ("create", "update", "destroy"):
+            return HeartBeatWriteSerializer
+        else:
+            return HeartBeatReadSerializer

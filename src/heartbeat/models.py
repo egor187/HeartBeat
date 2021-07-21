@@ -24,6 +24,9 @@ class Team(models.Model):
     def __str__(self):
         return f"Team: {self.name}. Team_lead: {self.team_lead}. Members: {self.members.all()}"
 
+    class Meta:
+        unique_together = ["name", "team_lead"]
+
 
 class Membership(models.Model):
     """
@@ -47,11 +50,17 @@ class Question(models.Model):
     class Meta:
         unique_together = ["text", "team_lead"]
 
+    def __str__(self):
+        return f"Question instance: {self.text} by team_lead: {self.team_lead.username}"
+
 
 class HeartBeat(models.Model):
     question = models.ForeignKey(Question, on_delete=models.PROTECT, related_name="heartbeats")
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="heartbeats")
-    member = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="heartbeats")
+    creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="heartbeats")
     date_created = models.DateField(auto_now_add=True)
     yesterday_plan = models.TextField()
     today_plan = models.TextField()
+
+    def __str__(self):
+        return f"HeartBeat instance by member: {self.creator.username} on: {self.date_created}"

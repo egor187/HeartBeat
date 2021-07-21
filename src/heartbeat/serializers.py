@@ -33,12 +33,21 @@ class TeamSerializer(serializers.ModelSerializer):
     # )
 
     #  Nested serializer realization
-    team_lead = CustomUserSerializer(read_only=True)
+    team_lead = serializers.HiddenField(default=serializers.CurrentUserDefault())
     members = CustomUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = Team
         fields = ["id", "name", "team_lead", "members"]
+
+    def validate_team_lead(self, value):
+        """
+        validate that creator (request.user) of 'team' instance is 'team_lead'
+        """
+        if self.context["request"].user.is_team_lead:
+            return value
+        else:
+            raise serializers.ValidationError("Current user isn't a team-lead")
 
 
 class QuestionWriteSerializer(serializers.ModelSerializer):
@@ -69,3 +78,26 @@ class QuestionReadSerializer(QuestionWriteSerializer):
     of the ViewSet
     """
     team_lead = None
+
+
+class HeartBeatReadSerializer(serializers.ModelSerializer):
+    # team = TeamSerializer()
+    # creator = CustomUserSerializer()
+    # less complex serialization through using 'source' attr to related instance
+    team = serializers.PrimaryKeyRelatedField(read_only=True, source="team.name")
+    creator = serializers.PrimaryKeyRelatedField(read_only=True, source='creator.username')
+
+    class Meta:
+        model = HeartBeat
+        fields = "__all__"
+        read_only_fields = [fields]
+
+
+class HeartBeatWriteSerializer(HeartBeatReadSerializer):
+    team = None
+    creator = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta(HeartBeatReadSerializer.Meta):
+        fields = None
+        exclude = ["id"]
+        read_only_fields = ["date_created",]

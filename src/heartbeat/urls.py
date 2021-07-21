@@ -2,6 +2,11 @@ from django.urls import path
 
 from . import views
 
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register("question", views.QuestionViewSet, basename="questions")
+
 app_name = "heartbeat"
 
 urlpatterns = [
@@ -14,4 +19,5 @@ urlpatterns = [
     path("membership/", views.MembershipListAPIView.as_view(), name="memberships"),
     path("membership/create/", views.MembershipCreateAPIView.as_view(), name="create_membership"),
     path("membership/delete/<int:pk>/", views.MembershipDeleteAPIView.as_view(), name="delete_membership"),
-]
+
+] + router.urls

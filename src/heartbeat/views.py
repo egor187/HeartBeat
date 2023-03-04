@@ -46,23 +46,6 @@ class TeamCreateAPIView(generics.CreateAPIView):
         """
         serializer.save(team_lead=self.request.user)
 
-    # Realization below (without using validation on 'serializer' level) with hardcoded returning Response
-    # with 403-status and row error message. More convenient realization is to set field validation on serializater
-    # level with raising serializers.ValidationError
-
-    # def create(self, request, *args, **kwargs):
-    #     """
-    #     Override parent method to allow only to 'is_team_lead' users to create team
-    #     """
-    #     if self.request.user.is_team_lead:
-    #         serializer = self.get_serializer(data=request.data)
-    #         serializer.is_valid(raise_exception=True)
-    #         self.perform_create(serializer)
-    #         headers = self.get_success_headers(serializer.data)
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-    #     else:
-    #         return Response(data={"msg": "current user isn't teamlead"}, status=status.HTTP_403_FORBIDDEN)
-
 
 class TeamDeleteAPIView(generics.DestroyAPIView):
     queryset = Team.objects.all()
